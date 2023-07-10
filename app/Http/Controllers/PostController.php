@@ -12,7 +12,7 @@ class PostController extends Controller
         // server side pagination
         $count =  $request->query("count");
 
-        $posts = Post::simplePaginate($count);
+        $posts = Post::latest()->simplePaginate($count);
         return response($posts);
     }
 

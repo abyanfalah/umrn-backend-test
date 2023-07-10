@@ -10,9 +10,9 @@ class PostController extends Controller
     public function index(Request $request)
     {
         // server side pagination
-        $count =  $request->query("count");
+        $count =  $request->query("count") ?? 5;
 
-        $posts = Post::latest()->simplePaginate($count);
+        $posts = Post::latest()->paginate($count);
         return response($posts);
     }
 
@@ -46,14 +46,9 @@ class PostController extends Controller
             "content" => "required",
         ]);
 
+        $post->title = $request->title;
         $post->author_name = $request->author_name;
         $post->content = $request->content;
-
-        $oldPost = Post::find($post->id);
-
-        if ($oldPost == $post) {
-            return response("no changes", 200);
-        }
 
         try {
             $post->save();
@@ -62,6 +57,8 @@ class PostController extends Controller
             return response("failed updating post: $e", 500);
         }
     }
+
+
 
     public function destroy(Post $post)
     {

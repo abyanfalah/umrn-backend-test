@@ -19,12 +19,17 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $newPost = $request->validate([
+            "title" => "required",
             "author_name" => "required",
             "content" => "required",
         ]);
 
-        if (Post::create($newPost)) {
+
+        try {
+            Post::create($newPost);
             return response('post created successfully', 200);
+        } catch (\Exception $e) {
+            return response("failed creating post: $e", 500);
         }
     }
 
@@ -36,6 +41,7 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $request->validate([
+            "title" => "required",
             "author_name" => "required",
             "content" => "required",
         ]);
@@ -46,20 +52,25 @@ class PostController extends Controller
         $oldPost = Post::find($post->id);
 
         if ($oldPost == $post) {
-            return response("no changes", 304);
+            return response("no changes", 200);
         }
 
-        if ($post->save()) {
+        try {
+            $post->save();
             return response("post updated successfully", 200);
+        } catch (\Exception $e) {
+            return response("failed updating post: $e", 500);
         }
     }
 
     public function destroy(Post $post)
     {
-        if ($post->delete()) {
-            return response("post deleted successfully", 200);
-        }
 
-        return response("failed deleting post", 200);
+        try {
+            $post->delete();
+            return response("post deleted successfully", 200);
+        } catch (\Exception $e) {
+            return response("failed deleting post: $e", 500);
+        }
     }
 }
